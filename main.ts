@@ -105,6 +105,9 @@ namespace robototto {
         }
         // last number
         ary[idx] = parseInt(str.substr(lastC, str.length - lastC));
+        for (let i=0;i<8;i++){
+            serial.writeLine(i+" "+ ary[i])
+        }
     }
 
     /**
@@ -122,7 +125,8 @@ namespace robototto {
      * @param amp movements; eg: "90 90 90 90"
     */
     //% blockId="oscAmplitude" block="Osc AMP |%amp"
-    //% weight=99
+    //% weight=10
+    //% advanced=true
     export function oscAmplitude(amp: string): void {
         parseAry(amp, _amp);
     }
@@ -131,7 +135,8 @@ namespace robototto {
      * @param offset movements; eg: "0 0 0 0"
     */
     //% blockId="oscOffset" block="Osc offset |%offset"
-    //% weight=90
+    //% weight=10
+    //% advanced=true
     export function oscOffset(offset: string): void {
         parseAry(offset, _offset);
     }
@@ -140,14 +145,16 @@ namespace robototto {
      * @param phase movements; eg: "0 0 0 0"
     */
     //% blockId="oscPhase" block="Osc phase |%phase"
-    //% weight=90
+    //% weight=10
+    //% advanced=true
     export function oscPhase(phase: string): void {
         parseAry(phase, _phase);
     }
 
 
     //% blockId="Oscillate" block="Oscillate Servos |Period %period|Cycles %cycle"
-    //% weight=90
+    //% weight=10
+    //% advanced=true
     export function Oscillate(period: number, cycle: number): void {
         _oscillateServos(period, cycle);
     }
