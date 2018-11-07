@@ -25,27 +25,29 @@ namespace robototto {
     let _target: number[] = [90, 90, 90, 90, 90, 90, 90, 90];
     let _increment: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
     let _amp: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
-    
+    let _offset: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
+    // note: all serveo share same period
+    let _period: number = 2000;
+    let _phase: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
 
     function setDegree(j: Joint, degree: number) {
         robotbit.Servo(servoIndex[j], degree + _trim[j])
         _degree[j] = degree;
-        serial.writeLine(j + " " + degree)
     }
 
 
     function _moveServos(millis: number) {
         let steps: number;
-        if (millis>10){
-            steps = millis/10;
+        if (millis > 20) {
+            steps = millis / 20;
             for (let i = 0; i < 8; i++) {
-                _increment[i] = (_target[i] - _degree[i])/steps;
+                _increment[i] = (_target[i] - _degree[i]) / steps;
             }
-            for (let s=0;s<steps;s++){
+            for (let s = 0; s < steps; s++) {
                 for (let i = 0; i < 8; i++) {
                     setDegree(i, _degree[i] + _increment[i])
                 }
-                basic.pause(10);
+                basic.pause(6); //optimized
             }
         }
         for (let i = 0; i < 8; i++) {
@@ -53,8 +55,26 @@ namespace robototto {
         }
     }
 
-    function _oscillateServos() {
-        
+    function setDegreePh(j: Joint, A: number, O: number, ph: number) {
+        // use sin function to make servo sweep
+        let pos: number = Math.round(A*Math.sin(ph/180*Math.PI)+O)
+        setDegree(j, pos+90) // 90 degree = phase 0
+    }
+
+    function _oscillateServos(period: number, cycle: number) {
+        let _ph: number[] = _phase;
+        // 1 period = 2*pi
+        const step = 20; // ms for each step
+        let totalSteps = period * cycle / step;
+        let _inc = 360 * step / period; //phase increase for each 10ms
+
+        for (let s=0;s<totalSteps;s++){
+            for (let i = 0; i < 8; i++) {
+                setDegreePh(i, _amp[i], _offset[i], _ph[i]);
+                _ph[i] += _inc;
+            }
+            basic.pause(step);
+        }
     }
 
     //% blockId="ottoAttach" block="Attach |Joint %j|%s|Trim %t"
@@ -73,27 +93,63 @@ namespace robototto {
         }
     }
 
-    /**
-     * @param time time for move; eg: 600
-     * @param move movements; eg: "90 90 90 90"
-    */
-    //% blockId="moveServos" block="Move Servo |%time|%move"
-    //% weight=99
-    export function moveServos(time: number, move: string): void {
+    function parseAry(str: string, ary: number[]) {
         let idx = 0;
         let lastC = 0;
-        for (let i=0;i<move.length;i++){
-            if (move.charAt(i) == ' ' || move.charAt(i) == ','){
-                _target[idx] = parseInt(move.substr(lastC, i-lastC));
+        for (let i = 0; i < str.length; i++) {
+            if (str.charAt(i) == ' ' || str.charAt(i) == ',') {
+                ary[idx] = parseInt(str.substr(lastC, i - lastC));
                 lastC = i;
                 idx++;
             }
         }
         // last number
-        _target[idx] = parseInt(move.substr(lastC, move.length - lastC));
+        ary[idx] = parseInt(str.substr(lastC, str.length - lastC));
+    }
+
+    /**
+     * @param time time for move; eg: 600
+     * @param move movements; eg: "90 90 90 90"
+    */
+    //% blockId="moveServos" block="Move Servo |%time ms|%move"
+    //% weight=99
+    export function moveServos(time: number, move: string): void {
+        parseAry(move, _target);
         _moveServos(time);
     }
 
+    /**
+     * @param amp movements; eg: "90 90 90 90"
+    */
+    //% blockId="oscAmplitude" block="Osc AMP |%amp"
+    //% weight=99
+    export function oscAmplitude(amp: string): void {
+        parseAry(amp, _amp);
+    }
 
+    /**
+     * @param offset movements; eg: "0 0 0 0"
+    */
+    //% blockId="oscOffset" block="Osc offset |%offset"
+    //% weight=90
+    export function oscOffset(offset: string): void {
+        parseAry(offset, _offset);
+    }
+
+    /**
+     * @param phase movements; eg: "0 0 0 0"
+    */
+    //% blockId="oscPhase" block="Osc phase |%phase"
+    //% weight=90
+    export function oscPhase(phase: string): void {
+        parseAry(phase, _phase);
+    }
+
+
+    //% blockId="Oscillate" block="Oscillate Servos |Period %period|Cycles %cycle"
+    //% weight=90
+    export function Oscillate(period: number, cycle: number): void {
+        _oscillateServos(period, cycle);
+    }
 
 }
