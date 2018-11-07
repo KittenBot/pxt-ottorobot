@@ -1,0 +1,15 @@
+{
+    "name": "robototto",
+    "version": "0.1.0",
+    "description": "Otto Type Robot based on robotbit",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*",
+        "robotbit": "github:kittenbot/pxt-robotbit"
+    },
+    "files": [
+        "README.md",
+        "main.ts"
+    ],
+    "public": true
+}

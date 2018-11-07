@@ -1,0 +1,20 @@
+{
+    "target": "microbit",
+    "targetVersion": "1.2.4",
+    "name": "robototto",
+    "meta": {},
+    "editor": "tsprj",
+    "pubId": "",
+    "pubCurrent": false,
+    "_rev": null,
+    "id": "800ebc8a-775d-4ee5-b7bd-d6e217b145a4",
+    "recentUse": 1541576268,
+    "modificationTime": 1541576268,
+    "blobId": null,
+    "blobVersion": null,
+    "blobCurrent": false,
+    "isDeleted": false,
+    "path": "pxt-robototto",
+    "githubCurrent": false,
+    "saveId": null
+}
